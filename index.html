@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>GamProject Blocker</title>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        
+        <style>
+            body{
+                width: 100%;
+                height: 100%;
+                background-color: black;
+            }
+            
+            #board{
+                top: 30%;
+                left: 30%;
+                position: absolute;
+                background-color: whitesmoke;
+            }
+            
+            .item{
+                -webkit-transition-duration: .3s;
+                position: absolute;
+                width: 48px;
+                height: 48px;
+                margin:  1px;
+                background: url("") #009999 ;
+                background-size: contain;
+                z-index: 10;
+            }
+            
+            input{ position: absolute }
+            
+            .btn_left{ left:100px }
+            .btn_right{ left:430px }
+            .btn_row3{ top:400px }
+            .btn_row2{ top:350px }
+            .btn_row1{ top:300px }
+            .btn_row0{ top:250px }
+            .btn_EXC{ -webkit-transform: scale(0.8); background-color: black; opacity: .2; z-index: -1; }
+            
+            
+        </style>
+    </head>
+    <body>
+        <div id="board"></div>
+        <input  class="btn btn_left btn_row3" type="button" title="left" onclick="controlBlock(this)" />
+        <input  class="btn btn_left btn_row2" type="button" title="left" onclick="controlBlock(this)" />
+        <input  class="btn btn_left btn_row1" type="button" title="left" onclick="controlBlock(this)" />
+        <input  class="btn btn_left btn_row0" type="button" title="left" onclick="controlBlock(this)" />
+        <input  class="btn btn_right btn_row3" type="button" title="left" onclick="controlBlock(this)" />
+        <input  class="btn btn_right btn_row2" type="button" title="left" onclick="controlBlock(this)" />
+        <input  class="btn btn_right btn_row1" type="button" title="left" onclick="controlBlock(this)" />
+        <input  class="btn btn_right btn_row0" type="button" title="left" onclick="controlBlock(this)" />
+        
+        <script>
+            $(document).ready(function(){});
+                
+            console.log("fucking");
+
+            var board = $("#board");
+            var board_w = 200;
+            var board_h = 200;
+            var row;
+            var col;
+
+            var item_select_script = "<div class='item' ></div>";
+            var items = [];
+            var items_img = ["http://wikieducator.org/images/3/35/Information_icon.svg","https://cdn1.iconfinder.com/data/icons/artcore/512/firefox.png","http://icons.iconarchive.com/icons/deleket/sleek-xp-software/256/Yahoo-Messenger-icon.png"];
+
+            //init board and items
+            $(function(){
+
+                board.css({"width":board_w+"px" , "height":board_h+"px"});
+
+                row = (200 / 50) + 2;
+                col = (200 / 50);
+                var itemCount = row * col;
+                for(var i = 0 ; i < itemCount ; i++ )
+                {
+                    var item = $(item_select_script).appendTo(board);
+
+                    var x = (Math.floor(i % row) * 50) - 50;
+                    var y = Math.floor(i / row) * 50;
+                    
+                    var rand_img_id = Math.floor(Math.random()*3);
+                    
+                    item.css({"left":x+"px" , "top":y+"px" , "background-image":"url("+items_img[ rand_img_id ]+")"});
+                    if( x == -50 || x == ( row-2 )*50 )
+                        item.addClass("btn_EXC");
+                    
+                    items.push(item);
+                }
+
+            });
+            
+            function controlBlock( btn )
+            {
+               var h = 0;
+               if($(btn).hasClass("btn_row3"))
+                   h = 3;
+               if($(btn).hasClass("btn_row2"))
+                   h = 2;
+               if($(btn).hasClass("btn_row1"))
+                   h = 1;
+               
+               var min_id = h * row;
+               var max_id = (( h + 1 ) * row) - 1 ;
+               
+               for(var i = min_id ; i <= max_id ; i++)
+                {
+                    var isEXC = false;
+                    var cur_x = parseInt(items[i].css("left"));
+                    console.log( i + " :: cur_x ? " + cur_x );
+                    
+                    if( $(btn).hasClass("btn_right") )
+                    {
+                        cur_x += 50;
+                        if( cur_x > (row-2) * 50 )
+                        {
+                           cur_x = -50;
+                           isEXC = true;
+                        }
+                        else if( cur_x == (row-2) * 50 )
+                        {
+                            isEXC = true;
+                        }
+                    }
+                    else
+                    {
+                        cur_x -= 50;
+                        if( cur_x < -50 )
+                        {
+                           cur_x = (row - 2 ) * 50;
+                           isEXC = true;
+                        }
+                        else if( cur_x == -50 )
+                        {
+                            isEXC = true;
+                        }
+                    }
+
+                    items[i].css({"left":cur_x +"px"});
+                    if( isEXC )
+                        items[i].addClass("btn_EXC");
+                    else
+                        items[i].removeClass("btn_EXC");
+                }
+                  
+            }
+        </script>
+    </body>
+</html>
