@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>GamProject Blocker</title>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="itemClass.js"></script>
+        <style>
+            body{
+                width: 100%;
+                height: 100%;
+                background-color: black;
+            }
+            
+            #board{
+                top: 10%;
+                left: 175px;
+                position: absolute;
+                background-color: whitesmoke;
+            }
+            
+            .item{
+                /*-webkit-transition-duration: .1s;*/
+                position: absolute;
+                width: 48px;
+                height: 48px;
+                margin:  1px;
+                background: url("") #009999 ;
+                background-size: contain;
+                z-index: 10;
+            }
+            
+            input{ position: absolute }
+            
+            .btn_left{ left:100px }
+            .btn_right{ left:430px }
+            .btn_row3{ top:400px }
+            .btn_row2{ top:350px }
+            .btn_row1{ top:300px }
+            .btn_row0{ top:250px }
+            .btn_ent{ top:450px ; left:250px; }
+            .btn_EXC{ -webkit-transform: scale(0.8); background-color: black; opacity: .2; z-index: -1; }
+            
+            
+        </style>
+    </head>
+    <body>
+        <div id="board"></div>
+        <input  class="btn btn_left btn_row3" type="button" title="left" onclick="HighLightCombo(this)" />
+        <input  class="btn btn_left btn_row2" type="button" title="left" onclick="HighLightCombo(this)" />
+        <input  class="btn btn_left btn_row1" type="button" title="left" onclick="HighLightCombo(this)" />
+        <input  class="btn btn_left btn_row0" type="button" title="left" onclick="HighLightCombo(this)" />
+        <input  class="btn btn_right btn_row3" type="button" title="left" onclick="HighLightCombo(this)" />
+        <input  class="btn btn_right btn_row2" type="button" title="left" onclick="HighLightCombo(this)" />
+        <input  class="btn btn_right btn_row1" type="button" title="left" onclick="HighLightCombo(this)" />
+        <input  class="btn btn_right btn_row0" type="button" title="left" onclick="HighLightCombo(this)" />
+        
+        <input  class="btn btn_ent" type="button" title="endturn" onclick="Remove_combo()" />
+       
+        <script>
+            $(document).ready(function(){});
+                
+            console.log("fucking");
+
+            var board = $("#board");
+            var board_w = 200;
+            var board_h = 200;
+            var row;
+            var col;
+
+            var item_select_script = "<div class='item' onclick='Remove_blockOnclick(this)'></div>";
+            var items = [];
+            var items_img = ["http://wikieducator.org/images/3/35/Information_icon.svg",
+                "https://cdn1.iconfinder.com/data/icons/artcore/512/firefox.png",
+                "http://icons.iconarchive.com/icons/deleket/sleek-xp-software/256/Yahoo-Messenger-icon.png",
+                "http://www.rebron.org/wordpress/wp-content/uploads/2009/07/Thunderbird-300x300.jpg",
+                "http://files.softicons.com/download/system-icons/apple-logo-icons-by-thvg/ico/Apple%20logo%20icon%20-%20Classic.ico"];
+
+            var fill_done = true;
+            //init board and items
+            $(function(){
+
+                board.css({"width":board_w+"px" , "height":board_h+"px"});
+
+                row = (board_w / 50);
+                col = (board_h / 50);
+                var itemCount = row * col;
+                for(var i = 0 ; i < itemCount ; i++ )
+                {
+                    var item = $(item_select_script).appendTo(board);
+
+                    var x = (Math.floor(i % row) * 50);
+                    var y = -50;
+                    
+                    var rand_img_id = Math.floor(Math.random()* items_img.length );
+                    
+//                    item.css({"left":x+"px" , "top":y+"px" , "background-image":"url("+items_img[ rand_img_id ]+")"});
+//                    if( x == -50 || x == ( row-2 )*50 )
+//                        item.addClass("btn_EXC");
+                    item.attr("id" , i);
+                    items.push( new block(item) );
+                    items[i].MoveTo_Anim( x , y );
+                    items[i].SetImgURL( items_img[ rand_img_id ] );
+                }
+
+            });
+            
+            function HighLightCombo( btn )
+            {
+               var h = 0;
+               if($(btn).hasClass("btn_row3"))
+                   h = 3;
+               if($(btn).hasClass("btn_row2"))
+                   h = 2;
+               if($(btn).hasClass("btn_row1"))
+                   h = 1;
+               
+               Remove_combo( h );
+            }
+            
+            function OnGen()
+            {
+                var itemCount = (row) * col;
+                
+                console.log( "itemCount ? " + itemCount );
+                
+                for(var i = 0 ; i < itemCount ; i++ )
+                {
+                    var x = Math.floor(i % (row));
+                    var y = Math.floor(i / (row));
+                    
+                    items[i].MoveTo_dir(x * 50, items[i].GetPosY());
+                    items[i].MoveTo_Anim(x * 50, y * 50);
+                }
+            }
+            
+            function Start_search_combo()
+            {
+                for( var i = 0 ; i < row ; i++ )
+                {
+                    Remove_combo( i )
+//                    if(  )
+//                    {
+//                        setInterval( Start_search_combo() ,800);
+//                        break;
+//                    }
+                }
+            }
+            
+            function Remove_combo( h )
+            {
+               var min_id = h * row;
+               var max_id = (( h + 1 ) * row) - 1 ;
+               
+               var foucs = "";
+               var comboList = [];
+               var prev_x ;
+               
+               console.log( "------" + h );
+               for( var imi = 0 ; imi < items_img.length ; imi++ )
+               {
+                   foucs = "url("+ items_img[imi] +")";
+                   comboList = [];
+                   prev_x = -1;
+                    for(var i = 0 ; i < items.length ; i++)
+                    {
+                        if( items[i].GetPosY() == h * 50 && items[i].GetImgURL() == foucs)
+                        {
+                            
+                            console.log(i + " >> " + items[i].GetPosX());
+                            comboList.push(i);
+                            
+//                            if( prev_x == -1 || items[i].GetPosX() - prev_x == 50 )
+//                            {
+//                                prev_x = items[i].GetPosX();
+//                                console.log(imi + " >> count ? " + prev_x);
+//                                comboList.push(i);
+//                            }
+                        }
+                    }
+                    
+                    console.log("count ? " + comboList.length);
+                   if( comboList.length == row )
+                   {
+                       
+                       for(var i = 0 ; i < comboList.length ; i++ )
+                       {
+                           Remove( items[ comboList[i] ].GetSelector() )
+                       }
+                       return true;
+                   }
+                   
+               }
+               
+               return false;
+            }
+            
+            function Remove_blockOnclick( obj )
+            {
+                Remove( obj );
+//                setInterval( Start_search_combo() ,800);
+            }
+            
+            function Remove( obj )
+            {
+                var id = parseInt($(obj).attr("id"));
+                
+                obj_cur_y = items[ id ].GetPosY();
+                obj_cur_x = items[ id ].GetPosX();
+                
+                items[ id ].MoveTo_dir(obj_cur_x, -50 );
+                
+                var rand_img_id = Math.floor(Math.random()* items_img.length );
+                items[ id ].SetImgURL( items_img[ rand_img_id ] );
+                
+                FillLine( obj_cur_x , obj_cur_y);
+            }
+            
+            function FillLine( search_x , search_y)
+            {   
+                var que = [];
+                for(var i = 0 ; i < items.length ; i++)
+                {
+                    if(items[i].GetPosX() == search_x)
+                    {
+                        que.push(i);
+                    }
+                }
+                
+                
+                //sorting 
+                for(var qi = 0 ; qi < que.length - 1 ; qi++ )
+                {
+                    var item1_y = items[que[qi]].GetPosY();
+                    for(var qii = 0 ; qii < que.length - 1 ; qii++ )
+                    {
+                        var item2_y = items[que[qii]].GetPosY();
+                        
+                        if( item1_y > item2_y )
+                        {
+                            var temp = que[qi];
+                            que[qi] = que[qii];
+                            que[qii] = temp;
+                        }
+                    }
+                }
+                
+                console.log( que );
+                
+                //final move posY
+                for(var qi = 0 ; qi < que.length ; qi++ )
+                {
+                    if( items[ que[qi] ].GetPosY() < search_y )
+                    {
+                        items[ que[qi] ].MoveTo_Anim(search_x, items[ que[qi] ].GetPosY() + 50 );
+                    }
+                    
+                }
+                
+            }
+            
+            
+            
+            $(document).ready(function(){
+                OnGen();
+            });
+            
+        </script>
+    </body>
+</html>
